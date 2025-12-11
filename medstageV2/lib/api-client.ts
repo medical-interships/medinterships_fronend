@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 interface FetchOptions extends RequestInit {
   token?: string
@@ -8,11 +8,8 @@ export async function apiRequest<T>(endpoint: string, options: FetchOptions = {}
   const { token, ...fetchOptions } = options
   const headers: HeadersInit = {
     "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token.trim()}` }),
     ...fetchOptions.headers,
-  }
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`
   }
 
   try {
@@ -27,6 +24,7 @@ export async function apiRequest<T>(endpoint: string, options: FetchOptions = {}
     }
 
     return response.json()
+
   } catch (error) {
     console.error("[API Request Error]", error)
     throw error
@@ -42,7 +40,7 @@ export const authApi = {
     }),
 
   personnelLogin: (email: string, password: string) =>
-    apiRequest("/auth/personnel-login", {
+    apiRequest("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),

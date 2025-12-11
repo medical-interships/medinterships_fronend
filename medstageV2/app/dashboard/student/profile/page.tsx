@@ -12,8 +12,10 @@ import {
   Award,
   Mail,
   AlertCircle,
+  Eye,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
 
 export default function StudentProfilePage() {
   // Données utilisateur
@@ -168,6 +170,17 @@ export default function StudentProfilePage() {
         <h2 className="text-3xl font-bold text-foreground mb-2">Mon Profil</h2>
         <p className="text-muted-foreground">Gérez vos informations personnelles et documents</p>
       </div>
+
+      {/* Bouton Historique des Stages */}
+      <div className="flex justify-end">
+        <Link href="/dashboard/student/internships/history">
+          <Button size="sm" variant="ghost" className="bg-primary hover:bg-primary/90 mt-4">
+            <Eye size={18} />
+            Voir mes stages
+          </Button>
+        </Link>
+      </div>
+      
 
       {saved && (
         <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 flex items-center gap-2">

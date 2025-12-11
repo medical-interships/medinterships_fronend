@@ -89,7 +89,8 @@ export function Sidebar({ role }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {items.map((item) => {
-          const isActive = pathname === item.href || pathname.endsWith(item.href+"/new") || pathname.endsWith(item.href+"/profile")
+          const isActive = pathname === item.href || 
+                new RegExp(`^${item.href}(\\/\\d+|\\/new|\\/profile|\\/history|\\/)?$`).test(pathname)
           const Icon = item.icon
 
           return (

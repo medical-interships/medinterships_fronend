@@ -1,24 +1,56 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { apiRequest } from "@/lib/api-client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
+interface LoginResponse {
+  token: string
+}
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      window.location.href = "/dashboard/admin";
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setLoading(true)
-    // Login logic here
-    setTimeout(() => setLoading(false), 1000)
-  }
+
+    try {
+      const response = (await apiRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      })) as LoginResponse
+
+      if (!response.token) {
+        throw new Error("Token manquant dans la réponse")
+      }
+
+      // Stocker le token
+      localStorage.setItem("token", response.token)
+
+      // Rediriger vers le dashboard admin
+      window.location.href = "/dashboard/admin"
+    } catch (err: any) {
+      setError(err.message || "Échec de la connexion. Vérifiez vos identifiants.")
+    } finally {
+      setLoading(false)
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-primary/5 flex items-center justify-center p-4">
@@ -37,6 +69,12 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500 text-red-700 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Email</label>
               <Input
@@ -45,6 +83,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-input border-border/50 focus:border-primary"
+                required
               />
             </div>
 
@@ -56,6 +95,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-input border-border/50 focus:border-primary"
+                required
               />
             </div>
 
@@ -80,5 +120,5 @@ export default function LoginPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }
